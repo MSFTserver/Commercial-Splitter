@@ -28,7 +28,7 @@ from pathlib import Path
 
 import numpy as np
 
-VERSION = "2026-11-16m"
+VERSION = "2026-11-16n"
 VIDEO_EXT = {".mp4", ".mkv", ".avi", ".mov", ".m4v", ".mpg", ".mpeg", ".ts", ".wmv", ".webm", ".vob"}
 
 # Typical ad lengths and how common they are (relative). Off-length ads are allowed, just less likely.
@@ -309,6 +309,18 @@ def _win_med(ex, a, b):
     return out
 
 
+def _border_steady(ex, a, b, min_valid=0.7, max_spread=1.0):
+    seg = ex[max(0, a):max(a + 1, b), :4]
+    if len(seg) == 0:
+        return False
+    ok = ~np.isnan(seg).any(axis=1)
+    if ok.mean() < min_valid:
+        return False
+    v = seg[ok]
+    spread = np.median(np.abs(v - np.median(v, axis=0)), axis=0).max()
+    return bool(spread <= max_spread)
+
+
 LOCAL_EPS = {"cchg": 0.5, "tchg": 0.1, "gchg": 1.0, "achg": 0.3, "vchg": 0.1}
 
 
@@ -323,7 +335,11 @@ def score_candidates(cands, fps, thumbs, rms, mfcc, extras=None, win=3.0, span=4
             L = _win_med(extras, int((lo - win) * fps), int((lo - 0.1) * fps))
             R = _win_med(extras, int((hi + 0.1) * fps), int((hi + win) * fps))
             g = np.abs(L[:4] - R[:4])
-            c["gchg"] = float(np.nansum(g)) if not np.all(np.isnan(g)) else 0.0          # picture size change
+            steady = (_border_steady(extras, int((lo - win) * fps), int((lo - 0.1) * fps)) and
+                      _border_steady(extras, int((hi + 0.1) * fps), int((hi + win) * fps)))
+            # picture size change - only trusted when the borders are steady on both sides
+            # (dark or spotlit scenes make the border measurement jump around)
+            c["gchg"] = float(np.nansum(g)) if steady and not np.all(np.isnan(g)) else 0.0
             c["cchg"] = float(np.hypot(L[4] - R[4], L[5] - R[5]) + 20 * abs(L[6] - R[6])) \
                 if not np.isnan(L[4] + R[4]) else 0.0                                     # color change
             c["tchg"] = float(abs(L[7] - R[7]) / (0.5 * (L[7] + R[7]) + 1e-6)) \

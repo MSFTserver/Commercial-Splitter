@@ -11,7 +11,7 @@ This script and README were written with the help of an AI assistant (Claude by 
    - blank, gray, or tape-noise frames between ads (only counted when the sound or picture also changes across them, so dark scenes and fades inside an ad don't split it)
    - a change in the audio (announcer, music, room tone) before vs. after the cut
    - a change in the overall look of the picture
-   - a change in **frame size** (black borders / pillarboxing)
+   - a change in **frame size** (black borders / pillarboxing), only trusted when the borders are steady on both sides of the cut, so dark or spotlit scenes don't fake it
    - a change in **color** (tint and saturation)
    - a change in **picture texture** (grain and sharpness, which usually changes with a different film print)
    - a drop in audio level at the cut
@@ -31,8 +31,8 @@ Requirements: Python 3.10+, ffmpeg/ffprobe on your PATH, and the packages in `re
 
 **Manual / other systems:**
 ```
-git clone https://github.com/MSFTserver/Commercial-Splitter
-cd Commercial-Splitter
+git clone <this repo>
+cd <repo folder>
 python -m pip install -r requirements.txt
 ```
 `requirements.txt` pulls the smaller CPU build of PyTorch. If you have an NVIDIA GPU, install the CUDA build of PyTorch from pytorch.org first. It's used automatically.
@@ -45,6 +45,7 @@ python -m pip install -r requirements.txt
 | `split_commercials.py` | The script |
 | `requirements.txt` | Python packages |
 | `setup_windows.bat` | One-time Windows setup (Python, ffmpeg, packages) |
+| `CHANGELOG.md` | What changed in each version |
 
 ## Usage
 ```
@@ -52,7 +53,7 @@ python split_commercials.py "commercials_50s.mp4" -o "D:\NeXroll\Prerolls\50s Ad
 python split_commercials.py "D:\Tapes" -o "D:\NeXroll\Prerolls\Vintage"
 ```
 
-The first line of output shows the script version, e.g. `(split_commercials 2026-11-16m)`. Check it after updating to make sure you're running the new file.
+The first line of output shows the script version, e.g. `(split_commercials 2026-11-16n)`. Check it after updating to make sure you're running the new file.
 
 | Option | What it does |
 |---|---|
@@ -109,7 +110,7 @@ On tapes with a repeating transition wipe, the wipe often overlaps the ads thems
 
 ## Notes
 - The first and last clip of every tape always go to `_review`. A compilation often opens or closes with an intro or outro (title card, channel bumper, end slate). These usually don't match normal ad lengths, but they can end up inside the first or last ad clip because they overlay the ad, use a quick transition, or match the ad's pacing. Check those two clips by hand and trim them if needed.
-- Tested on black-and-white 1940s-1960s and color 1970s-1990s compilations, including hard cuts with no gap between ads, dark night scenes inside an ad, title/credit cards between ads, striped wipe transitions, and tape static. `--refine` was tested on two-ad clips (it found the right break in each) and on single ads that must stay whole, including a 2-minute spot.
+- Tested on black-and-white 1950s, color 1970s and fast-cut 1990s compilations, including hard cuts with no gap between ads, dark night scenes inside an ad, title/credit cards between ads, striped wipe transitions, and tape static. `--refine` was tested on two-ad clips (it found the right break in each) and on single ads that must stay whole, including a 2-minute spot.
 - If ads are still stuck together, re-run with `--sensitivity 1`, or use the review menu / `--refine` on just those clips. If single ads get split, try `--sensitivity -1`.
 - Long single ads (e.g. a 2-minute spot) land in `_review` because of their length. Check them and use `c` to clear them.
 - Highly stylized ads (e.g. 1980s car spots with a silent intro, neon graphics and big color/look changes) can be split into several pieces. Use `j` in the menu or `--join` to put them back together.
