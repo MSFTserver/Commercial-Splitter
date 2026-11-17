@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Video and outputs - keep tapes and clips out of the repo
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.m4v
+*.mpg
+*.mpeg
+*.ts
+*.wmv
+*.webm
+*.vob
+_review/
+_replaced/
+*_segments.csv
+*_segments.png
+*_review_commands.txt

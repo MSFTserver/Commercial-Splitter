@@ -1,0 +1,7 @@
+# CPU build of PyTorch (smaller download). For an NVIDIA GPU, install the CUDA build from pytorch.org instead.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+transnetv2-pytorch
+librosa
+opencv-python-headless
+numpy
