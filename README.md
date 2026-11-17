@@ -31,8 +31,8 @@ Requirements: Python 3.10+, ffmpeg/ffprobe on your PATH, and the packages in `re
 
 **Manual / other systems:**
 ```
-git clone <this repo>
-cd <repo folder>
+git clone https://github.com/MSFTserver/Commercial-Splitter
+cd Commercial-Splitter
 python -m pip install -r requirements.txt
 ```
 `requirements.txt` pulls the smaller CPU build of PyTorch. If you have an NVIDIA GPU, install the CUDA build of PyTorch from pytorch.org first. It's used automatically.
